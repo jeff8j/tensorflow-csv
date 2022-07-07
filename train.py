@@ -41,8 +41,14 @@ import pandas as pd
 import re    # To match regular expression for extracting labels
 
 
+#notes to self
+#pip install tf-nightly-gpu
+#pip install --upgrade pip
 
-batch_size=32
+
+
+
+batch_size=10
 
 
 
@@ -79,9 +85,9 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
                 if "/"+label_classes[j]+"/" in file:
                     labels.append(j)  
         #original #data = np.asarray(data).reshape(-1,32,32,1)
-        data = np.asarray(data).reshape(-1,500,4,1)
+        #data = np.asarray(data).reshape(-1,500,4,1)
         #data = np.asarray(data).reshape(-1,500,4)
-        #data = np.asarray(data).reshape(-1,32,32,4)
+        data = np.asarray(data).reshape(-1,10,10,4)
         print("Returning Data Shape:", temp.values.shape)
         labels = np.asarray(labels)
         print("Labels: ", labels)
@@ -107,13 +113,8 @@ test_sequence = CustomSequence(filenames = files, batch_size = batch_size)
 
 
 model = tf.keras.Sequential([
-    layers.Conv2D(16, 3, activation = "relu", input_shape = (32,32,1)),
-    layers.MaxPool2D(2),
-    layers.Conv2D(32, 3, activation = "relu"),
-    layers.MaxPool2D(2),
-    layers.Flatten(),
-    layers.Dense(16, activation = "relu"),
-    layers.Dense(5, activation = "softmax")
+    layers.Conv2D(16, 3, activation = "relu", input_shape = (10,10,4)),
+    layers.Flatten()
 ])
 model.summary()
 
@@ -121,7 +122,7 @@ print("Training - Compile")
 model.compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 print("Training - Fit")
-model.fit(train_sequence, validation_data = val_sequence, epochs = 10)
+model.fit(train_sequence, validation_data = val_sequence, epochs = 10, steps_per_epoch=len(files)/batch_size, workers=1)
 
 
 
