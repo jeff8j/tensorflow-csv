@@ -75,7 +75,9 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
             for j in range(len(label_classes)):
                 if "/"+label_classes[j]+"/" in file:
                     labels.append(j)  
-        data = np.asarray(data).reshape(-1,500,4)
+        #original #data = np.asarray(data).reshape(-1,32,32,1)
+        #data = np.asarray(data).reshape(-1,500,4)
+        data = np.asarray(data).reshape(-1,32,32,4)
         labels = np.asarray(labels)
         print("Labels: ", labels)
         return data, labels
