@@ -67,17 +67,22 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
 
         for file in batch_x:   # In this loop read the files in the chunk that was selected previously
             temp = pd.read_csv(open(file,'r')) # Change this line to read any other type of file
-            #print(temp.values.shape)
+            #print("Read in shape: ",temp.values.shape)
+            if temp.values.shape[0] != 500:
+                print("Invalid read in shape: ",temp.values.shape);
+                quit();
             data.append(temp.values.reshape(500,4,-1)) # Convert column data to matrix like data with one channel
-            #print(temp.values.shape)
+            print("Data Shape:", temp.values.shape)
             #pattern = "/.*?/" + eval("file[14:21]")      # Pattern extracted from file_name
             #print(pattern)
             for j in range(len(label_classes)):
                 if "/"+label_classes[j]+"/" in file:
                     labels.append(j)  
         #original #data = np.asarray(data).reshape(-1,32,32,1)
+        data = np.asarray(data).reshape(-1,500,4,1)
         #data = np.asarray(data).reshape(-1,500,4)
-        data = np.asarray(data).reshape(-1,32,32,4)
+        #data = np.asarray(data).reshape(-1,32,32,4)
+        print("Returning Data Shape:", temp.values.shape)
         labels = np.asarray(labels)
         print("Labels: ", labels)
         return data, labels
@@ -88,6 +93,18 @@ print("Training")
 train_sequence = CustomSequence(filenames = files, batch_size = batch_size)
 val_sequence = CustomSequence(filenames = files, batch_size = batch_size)
 test_sequence = CustomSequence(filenames = files, batch_size = batch_size)
+
+
+#model = tf.keras.Sequential([
+#    layers.Conv2D(16, 3, activation = "relu", input_shape = (32,32,1)),  #original input_shape = (32,32,1)
+#    layers.MaxPool2D(2),
+#    layers.Conv2D(32, 3, activation = "relu"),
+#    layers.MaxPool2D(2),
+#    layers.Flatten(),
+#    layers.Dense(16, activation = "relu"),
+#    layers.Dense(5, activation = "softmax")
+#])
+
 
 model = tf.keras.Sequential([
     layers.Conv2D(16, 3, activation = "relu", input_shape = (32,32,1)),
