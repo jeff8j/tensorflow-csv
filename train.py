@@ -78,7 +78,7 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
                 print("Invalid read in shape: ",temp.values.shape);
                 quit();
             data.append(temp.values.reshape(500,4,-1)) # Convert column data to matrix like data with one channel
-            print("Data Shape:", temp.values.shape)
+            #print("Data Shape:", temp.values.shape)
             #pattern = "/.*?/" + eval("file[14:21]")      # Pattern extracted from file_name
             #print(pattern)
             for j in range(len(label_classes)):
@@ -87,10 +87,10 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
         #original #data = np.asarray(data).reshape(-1,32,32,1)
         #data = np.asarray(data).reshape(-1,500,4,1)
         #data = np.asarray(data).reshape(-1,500,4)
-        data = np.asarray(data).reshape(-1,10,10,4)
-        print("Returning Data Shape:", temp.values.shape)
+        data = np.asarray(data).reshape(-1, 500,4)
+        #print("Returning Data Shape:", temp.values.shape)
         labels = np.asarray(labels)
-        print("Labels: ", labels)
+        #print("Labels: ", labels)
         return data, labels
 
 
@@ -113,17 +113,34 @@ test_sequence = CustomSequence(filenames = files, batch_size = batch_size)
 
 
 model = tf.keras.Sequential([
-    layers.Conv2D(16, 3, activation = "relu", input_shape = (10,10,4)),
-    layers.Flatten()
+    layers.Conv1D(16, 3, activation = "relu", input_shape = (500,4)),
+    layers.MaxPool1D(2),
+    layers.Conv1D(32, 3, activation = "relu"),
+    layers.MaxPool1D(2),
+    layers.Flatten(),
+    layers.Dense(20, activation = "relu"),
+    layers.Dense(5, activation = "softmax")
 ])
 model.summary()
 
 print("Training - Compile")
 model.compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+#model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 print("Training - Fit")
-model.fit(train_sequence, validation_data = val_sequence, epochs = 10, steps_per_epoch=len(files)/batch_size, workers=1)
+es = EarlyStopping(monitor='val_accuracy', mode='max', patience=15,  restore_best_weights=True)
+accuracy = 0
+epochs=80
+#while accuracy <= 90:
+history = model.fit(train_sequence, validation_data=val_sequence, validation_steps=len(test_sequence), verbose=2, shuffle=True, epochs=epochs, steps_per_epoch=len(files)/batch_size, callbacks=[es])
+accuracy = (history.history['accuracy'][-1] * 100)
+print("Accuracy:",accuracy)
 
+
+# evaluate model
+print("Evaluating")
+_, acc = model.evaluate(test_sequence, steps=len(test_sequence), verbose=0)
+print('accuracy > %.3f' % (acc * 100.0))
 
 
 # save model
