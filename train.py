@@ -63,7 +63,7 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
         batch_x = self.filenames[idx * self.batch_size:(idx + 1) * self.batch_size] # Select a chunk of file names
         data = []
         labels = []
-        label_classes = ["up", "not"]
+        label_classes = ["bad", "good"]
 
         for file in batch_x:   # In this loop read the files in the chunk that was selected previously
             temp = pd.read_csv(open(file,'r')) # Change this line to read any other type of file
