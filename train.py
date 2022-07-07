@@ -68,14 +68,15 @@ class CustomSequence(tf.keras.utils.Sequence):  # It inherits from `tf.keras.uti
         for file in batch_x:   # In this loop read the files in the chunk that was selected previously
             temp = pd.read_csv(open(file,'r')) # Change this line to read any other type of file
             #print(temp.values.shape)
-            #data.append(temp.values.reshape(500,4,-1)) # Convert column data to matrix like data with one channel
+            data.append(temp.values.reshape(500,4,-1)) # Convert column data to matrix like data with one channel
             #print(temp.values.shape)
             #pattern = "/.*?/" + eval("file[14:21]")      # Pattern extracted from file_name
             #print(pattern)
             for j in range(len(label_classes)):
                 if "/"+label_classes[j]+"/" in file:
                     labels.append(j)  
-        data = np.asarray(data).reshape(-1,500,4)
+        #data = np.asarray(data).reshape(-1,500,4)
+        data = np.asarray(data).reshape(500,4)
         labels = np.asarray(labels)
         print("Labels: ", labels)
         return data, labels
