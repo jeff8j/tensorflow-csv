@@ -21,6 +21,7 @@ from tensorflow.keras import layers, models
 from tensorflow.keras.callbacks import EarlyStopping
 
 from tensorflow.keras import Sequential, layers
+from tensorflow.keras.layers import BatchNormalization, Conv1D, Conv2D, Dense, MaxPool1D, MaxPool2D, MaxPooling1D, MaxPooling2D, Flatten ,Dropout 
 from tensorflow.keras.callbacks import EarlyStopping
 from tensorflow.keras.layers.experimental.preprocessing import Rescaling
 
@@ -112,29 +113,112 @@ test_sequence = CustomSequence(filenames = files, batch_size = batch_size)
 #])
 
 
-model = tf.keras.Sequential([
+model_1 = tf.keras.Sequential([
     layers.Conv1D(16, 3, activation = "relu", input_shape = (500,4)),
     layers.MaxPool1D(2),
     layers.Conv1D(32, 3, activation = "relu"),
     layers.MaxPool1D(2),
     layers.Flatten(),
+    layers.Dense(50, activation = "relu"),
     layers.Dense(20, activation = "relu"),
     layers.Dense(5, activation = "softmax")
 ])
+
+
+model_2 = tf.keras.Sequential([
+    layers.Conv1D(64, 10, activation = "relu", input_shape = (500,4)),
+    layers.MaxPool1D(),
+    layers.BatchNormalization(),
+
+    layers.Conv1D(128, 10, activation='relu'),
+    layers.MaxPool1D(),
+    layers.BatchNormalization(),
+
+    layers.Conv1D(128, 10, activation='relu'),
+    layers.MaxPool1D(),
+    layers.BatchNormalization(),
+
+    layers.Conv1D(256, 10, activation='relu'),
+    layers.MaxPool1D(),
+    layers.BatchNormalization(),
+
+    layers.Flatten(),
+    layers.Dense(50, activation = "relu"),
+    layers.Dense(20, activation = "relu"),
+    layers.Dense(5, activation = "softmax")
+])
+
+
+model_3 = tf.keras.Sequential([
+    layers.Conv1D(64, 10, activation = "relu", input_shape = (500,4)),
+    layers.Flatten(),
+    layers.Dense(50, activation = "relu"),
+    layers.Dense(20, activation = "relu"),
+    layers.Dense(5, activation = "softmax")
+])
+
+
+model_4 = tf.keras.Sequential([
+    layers.Conv1D(32, 10, activation = "relu", input_shape = (500,4)),
+    layers.MaxPool1D(),
+    layers.Conv1D(32, 10, activation='relu'),
+    layers.MaxPool1D(),
+    layers.Conv1D(64, 10, activation='relu'),
+    layers.MaxPool1D(),
+    layers.Flatten(),
+    layers.Dense(64, activation = "relu"),
+    layers.Dropout(0.5),
+	layers.Dense(3, activation = "softmax")
+])
+
+
+
+def define_model_7():
+	model = Sequential()
+	model.add(Conv1D(32, 10, input_shape=(500, 4)))
+	model.add(Activation('relu'))
+	model.add(MaxPooling1D(pool_size=2))
+
+	model.add(Conv1D(32, 10))
+	model.add(Activation('relu'))
+	model.add(MaxPooling1D(pool_size=2))
+
+	model.add(Conv1D(64, 10))
+	model.add(Activation('relu'))
+	model.add(MaxPooling1D(pool_size=2))
+
+	model.add(Flatten())
+	model.add(Dense(64))
+	model.add(Activation('relu'))
+	model.add(Dropout(0.5))
+	model.add(Dense(3))
+	model.add(Activation('softmax'))
+
+	print("Training - Compile")
+	opt = Adam(learning_rate=0.000001)
+	model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+	return model
+
+
+
+model = define_model_7();
+
+
 model.summary()
 
 print("Training - Compile")
-model.compile(loss = "sparse_categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
+opt = Adam(learning_rate=0.000001)
+model.compile(loss = "sparse_categorical_crossentropy", optimizer = opt, metrics = ["accuracy"])
 #model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 print("Training - Fit")
 es = EarlyStopping(monitor='val_accuracy', mode='max', patience=15,  restore_best_weights=True)
 accuracy = 0
 epochs=80
-#while accuracy <= 90:
-history = model.fit(train_sequence, validation_data=val_sequence, validation_steps=len(test_sequence), verbose=2, shuffle=True, epochs=epochs, steps_per_epoch=len(files)/batch_size, callbacks=[es])
-accuracy = (history.history['accuracy'][-1] * 100)
-print("Accuracy:",accuracy)
+while accuracy <= 90:
+    history = model.fit(train_sequence, validation_data=val_sequence, validation_steps=len(test_sequence), verbose=2, shuffle=True, epochs=epochs, steps_per_epoch=len(files)/batch_size, callbacks=[es])
+    accuracy = (history.history['accuracy'][-1] * 100)
+    print("Accuracy:",accuracy)
 
 
 # evaluate model
