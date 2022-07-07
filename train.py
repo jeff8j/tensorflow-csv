@@ -196,7 +196,8 @@ def define_model_7():
 
 	print("Training - Compile")
 	opt = Adam(learning_rate=0.000001)
-	model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+	#model.compile(loss='categorical_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+	model.compile(loss = "sparse_categorical_crossentropy", optimizer = opt, metrics = ["accuracy"])
 	return model
 
 
