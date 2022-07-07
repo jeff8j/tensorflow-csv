@@ -206,10 +206,6 @@ model = define_model_7();
 
 model.summary()
 
-print("Training - Compile")
-opt = Adam(learning_rate=0.000001)
-model.compile(loss = "sparse_categorical_crossentropy", optimizer = opt, metrics = ["accuracy"])
-#model.compile(loss = "categorical_crossentropy", optimizer = "adam", metrics = ["accuracy"])
 
 print("Training - Fit")
 es = EarlyStopping(monitor='val_accuracy', mode='max', patience=15,  restore_best_weights=True)
